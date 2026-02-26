@@ -6,7 +6,7 @@ A portfolio of five healthcare interoperability applications built with **HL7 FH
 
 Before diving into the applications, explore the **FHIR R4 Resource Hierarchy** - an interactive visualization of all 264 nodes in the FHIR R4 (4.0.1) specification.
 
-[![Explore FHIR R4 Hierarchy](https://img.shields.io/badge/Explore-FHIR_R4_Resource_Hierarchy-40B5AD?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+PHBhdGggZD0iTTEyIDJMMyA3bDkgNSA5LTV6TTMgMTdsOSA1IDktNXoiLz48L3N2Zz4=&logoColor=white)](fhir_r4_hierarchy.html)
+[![Explore FHIR R4 Hierarchy](https://img.shields.io/badge/Explore-FHIR_R4_Resource_Hierarchy-40B5AD?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+PHBhdGggZD0iTTEyIDJMMyA3bDkgNSA5LTV6TTMgMTdsOSA1IDktNXoiLz48L3N2Zz4=&logoColor=white)](https://datagodzilla.github.io/fhir-projects/fhir_r4_hierarchy.html)
 
 This single-file interactive tool provides four complementary views of the FHIR R4 specification:
 

@@ -6,9 +6,7 @@ A browser-based patient management portal built with vanilla HTML, CSS, and Java
 
 ## Demo
 
-[![Launch App](https://img.shields.io/badge/Launch_App-patient__management__app.html-43B3AE?style=for-the-badge&logo=html5&logoColor=white)](patient_management_app.html)
-
-> Open with a local HTTP server for best results: `python3 -m http.server 8080`
+[![Launch App](https://img.shields.io/badge/Launch_App-HealthPlus_Patient_Manager-43B3AE?style=for-the-badge&logo=html5&logoColor=white)](https://datagodzilla.github.io/fhir-projects/1_Patient_Management_Application/patient_management_app.html)
 
 ## Features
 

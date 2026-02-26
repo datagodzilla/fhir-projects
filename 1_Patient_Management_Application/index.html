@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HealthPlus - Patient Management</title>
+  <style>
+    /* =================================================================
+       RESET & CSS VARIABLES
+       ================================================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --primary: #43B3AE;
+      --primary-dark: #359490;
+      --primary-light: #5DC4C0;
+      --primary-bg: #E8F5F4;
+      --white: #FFFFFF;
+      --off-white: #F8F9FA;
+      --gray-100: #F1F3F5;
+      --gray-200: #E9ECEF;
+      --gray-300: #DEE2E6;
+      --gray-400: #CED4DA;
+      --gray-500: #ADB5BD;
+      --gray-600: #6C757D;
+      --gray-700: #495057;
+      --gray-800: #343A40;
+      --gray-900: #212529;
+      --success: #2E7D32;
+      --warning: #E65100;
+      --error: #C62828;
+      --info: #0D47A1;
+      --male-bg: #D4EDFC;
+      --male-text: #0C5FA5;
+      --female-bg: #FCE4EC;
+      --female-text: #C62828;
+      --nav-height: 64px;
+      --max-width: 1200px;
+      --radius: 8px;
+      --radius-sm: 4px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-lg: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: var(--gray-900);
+      background: var(--off-white);
+    }
+
+    /* =================================================================
+       NAVIGATION BAR
+       ================================================================= */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-300);
+      box-shadow: var(--shadow);
+    }
+    .nav-container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 1rem;
+      display: flex;
+      align-items: center;
+      height: var(--nav-height);
+      gap: 1rem;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .brand-icon {
+      color: #FA8072;
+      font-weight: 700;
+      font-size: 1.3rem;
+    }
+    .brand-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .nav-home {
+      background: none;
+      border: none;
+      color: var(--gray-700);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+    .nav-home:hover { background: var(--gray-100); color: var(--primary); }
+    .nav-home.active { color: var(--primary); font-weight: 600; }
+    .nav-search {
+      display: flex;
+      flex: 1;
+      max-width: 460px;
+    }
+    .nav-search input {
+      flex: 1;
+      padding: 0.45rem 0.85rem;
+      border: 1px solid var(--gray-400);
+      border-right: none;
+      border-radius: 12px 0 0 12px;
+      font-size: 0.88rem;
+      outline: none;
+    }
+    .nav-search input:focus { border-color: var(--primary); }
+    .nav-search input::placeholder { color: var(--gray-500); }
+    .nav-search-btn {
+      padding: 0.45rem 1rem;
+      background: var(--primary);
+      color: var(--white);
+      border: 1px solid var(--primary);
+      border-radius: 0 12px 12px 0;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .nav-search-btn:hover { background: var(--primary-dark); }
+    .nav-create-btn {
+      padding: 0.45rem 1.1rem;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .nav-create-btn:hover { background: var(--primary-dark); }
+
+    /* =================================================================
+       BUTTONS
+       ================================================================= */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.85rem 2.5rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s, border-color 0.2s, opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.3px;
+    }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn:active:not(:disabled) { transform: translateY(0); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: var(--white); }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+    .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+    .btn-outline:hover:not(:disabled) { background: var(--primary-bg); }
+    .btn-danger { background: var(--error); color: var(--white); }
+    .btn-danger:hover:not(:disabled) { background: #a31e1e; }
+    .btn-neutral { background: var(--white); color: var(--gray-600); border: 1px solid var(--gray-400); }
+    .btn-neutral:hover:not(:disabled) { background: var(--gray-100); }
+    .btn-sm { padding: 0.5rem 1.25rem; font-size: 0.85rem; border-radius: 10px; }
+    .btn-flash {
+      background-color: #FA8072 !important;
+      color: #fff !important;
+      border-color: #FA8072 !important;
+      transition: none !important;
+    }
+
+    /* =================================================================
+       LAYOUT
+       ================================================================= */
+    .container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+
+    /* =================================================================
+       HOME VIEW
+       ================================================================= */
+    .hero {
+      text-align: center;
+      padding: 4rem 1rem;
+      background: linear-gradient(135deg, var(--primary-bg) 0%, var(--white) 100%);
+      border-radius: var(--radius);
+      margin-bottom: 2rem;
+    }
+    .hero-icon {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0 auto 1.5rem;
+      color: var(--primary-dark);
+    }
+    .hero-icon .hero-plus {
+      color: #FA8072;
+    }
+    .hero h1 { font-size: 2rem; color: var(--primary-dark); margin-bottom: 0.5rem; }
+    .hero p { font-size: 1.05rem; color: var(--gray-600); max-width: 500px; margin: 0 auto 2rem; }
+    .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.75rem;
+      text-align: center;
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--primary);
+    }
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .stat-card .label {
+      font-size: 0.85rem;
+      color: var(--gray-600);
+      margin-top: 0.25rem;
+    }
+
+    /* =================================================================
+       PATIENT TABLE
+       ================================================================= */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .toolbar .selection-info {
+      font-size: 0.85rem;
+      color: var(--gray-600);
+      margin-left: auto;
+    }
+    .table-wrap {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow-x: auto;
+    }
+    .patient-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .patient-table th {
+      background: var(--primary-bg);
+      color: var(--primary-dark);
+      padding: 0.45rem 0.65rem;
+      text-align: left;
+      font-size: 0.73rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--primary);
+      white-space: nowrap;
+    }
+    .patient-table td {
+      padding: 0.35rem 0.65rem;
+      border-bottom: 1px solid var(--gray-200);
+      color: var(--gray-800);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    .patient-table tbody tr:hover { background: var(--primary-bg); }
+    .patient-table tbody tr.selected { background: #d5f0df; }
+    .patient-table .clickable {
+      cursor: pointer;
+      color: var(--primary-dark);
+      font-weight: 600;
+    }
+    .patient-table .clickable:hover { text-decoration: underline; }
+    .gender-badge {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .gender-male { background: var(--male-bg); color: var(--male-text); }
+    .gender-female { background: var(--female-bg); color: var(--female-text); }
+    .gender-other, .gender-unknown { background: var(--gray-200); color: var(--gray-600); }
+    .text-muted { color: var(--gray-500); }
+    .text-sm { font-size: 0.8rem; }
+    .loading-text { color: var(--gray-400); font-style: italic; font-size: 0.82rem; }
+
+    /* Pagination */
+    .pagination-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 1rem;
+      border-top: 1px solid var(--gray-200);
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .page-size-select {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      color: var(--gray-600);
+    }
+    .page-size-select select {
+      padding: 0.3rem 0.5rem;
+      border: 1px solid var(--gray-400);
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+    }
+    .page-numbers {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .page-btn {
+      padding: 0.3rem 0.7rem;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      color: var(--gray-700);
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+    .page-btn:hover:not(:disabled) { background: var(--primary-bg); border-color: var(--primary); }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .page-btn.active {
+      background: var(--primary);
+      color: var(--white);
+      border-color: var(--primary);
+    }
+    .page-ellipsis { padding: 0 0.3rem; color: var(--gray-500); }
+    .page-info { font-size: 0.82rem; color: var(--gray-500); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--gray-500);
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+    .empty-state p { margin-bottom: 1rem; }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--gray-300);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-center { text-align: center; padding: 3rem; }
+
+    /* =================================================================
+       PATIENT FORM
+       ================================================================= */
+    .form-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .form-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--primary-bg);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .form-group {
+      margin-bottom: 1.15rem;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: 0.3rem;
+      font-size: 0.85rem;
+    }
+    .form-group label .required { color: var(--error); }
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--gray-400);
+      border-radius: var(--radius-sm);
+      font-size: 0.92rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 179, 174, 0.2);
+    }
+    .form-group.has-error input,
+    .form-group.has-error select { border-color: var(--error); }
+    .error-text {
+      color: var(--error);
+      font-size: 0.78rem;
+      margin-top: 0.2rem;
+    }
+    .form-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--gray-200);
+    }
+    fieldset {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    fieldset legend {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--primary-dark);
+      padding: 0 0.5rem;
+    }
+
+    /* Visit History section */
+    .visit-history { margin-top: 1.5rem; }
+    .visit-history h3 {
+      font-size: 1rem;
+      color: var(--primary-dark);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .visit-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .visit-table th {
+      background: var(--gray-100);
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--gray-700);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+    }
+    .visit-table td {
+      padding: 0.45rem 0.75rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    /* Appointment Calendar */
+    .appt-calendar { margin-top: 1.5rem; }
+    .appt-calendar h3 {
+      font-size: 1rem;
+      color: var(--primary-dark);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .cal-nav button {
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius-sm);
+      padding: 0.25rem 0.6rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--gray-700);
+    }
+    .cal-nav button:hover { background: var(--gray-100); }
+    .cal-nav .cal-month-label {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--gray-800);
+    }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      text-align: center;
+      font-size: 0.8rem;
+    }
+    .cal-grid .cal-day-header {
+      font-weight: 700;
+      color: var(--gray-500);
+      padding: 0.3rem 0;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+    .cal-grid .cal-day {
+      padding: 0.4rem 0;
+      border-radius: var(--radius-sm);
+      color: var(--gray-700);
+    }
+    .cal-grid .cal-day.empty { visibility: hidden; }
+    .cal-grid .cal-day.today {
+      font-weight: 700;
+      border: 2px solid var(--primary);
+      color: var(--primary-dark);
+    }
+    .cal-grid .cal-day.has-appt {
+      background: #FA8072;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 50%;
+    }
+    .cal-grid .cal-day.has-appt.today {
+      border: 2px solid var(--primary);
+    }
+
+    /* =================================================================
+       MODAL
+       ================================================================= */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .modal-panel {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      max-width: 440px;
+      width: 90%;
+      box-shadow: var(--shadow-lg);
+    }
+    .modal-panel h3 {
+      font-size: 1.1rem;
+      color: var(--gray-900);
+      margin-bottom: 0.75rem;
+    }
+    .modal-panel p {
+      font-size: 0.9rem;
+      color: var(--gray-600);
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    /* =================================================================
+       TOAST NOTIFICATIONS
+       ================================================================= */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .toast {
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.88rem;
+      box-shadow: var(--shadow-lg);
+      animation: slideIn 0.3s ease;
+      max-width: 380px;
+    }
+    .toast-success { background: #E8F5E9; color: #2E7D32; border-left: 4px solid #2E7D32; }
+    .toast-error { background: #FCE4EC; color: #C62828; border-left: 4px solid #C62828; }
+    .toast-info { background: #E3F2FD; color: #0D47A1; border-left: 4px solid #0D47A1; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* =================================================================
+       RESPONSIVE
+       ================================================================= */
+    @media (max-width: 768px) {
+      .nav-container { flex-wrap: wrap; height: auto; padding: 0.5rem 1rem; gap: 0.5rem; }
+      .nav-search { max-width: 100%; order: 10; }
+      .form-row { grid-template-columns: 1fr; }
+      .hero { padding: 2.5rem 1rem; }
+      .hero-icon { font-size: 1.8rem; }
+      .stats-row { grid-template-columns: 1fr !important; }
+      .toolbar { flex-direction: column; align-items: flex-start; }
+      .toolbar .selection-info { margin-left: 0; }
+    }
+    @media (max-width: 480px) {
+      .hero-actions { flex-direction: column; align-items: center; }
+      .pagination-bar { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================================================================= -->
+  <!-- NAVIGATION BAR                                                     -->
+  <!-- ================================================================= -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-container">
+      <a class="nav-brand" onclick="showView('home')" tabindex="0" role="button" aria-label="HealthPlus Home">
+        <span class="brand-icon">(+)</span>
+        <span class="brand-name">HealthPlus</span>
+      </a>
+      <button class="nav-home active" id="nav-home-btn" onclick="showView('home')">Home</button>
+    </div>
+  </nav>
+  <!-- Hidden input to keep JS references working -->
+  <input type="hidden" id="nav-search-input" value="">
+
+  <!-- ================================================================= -->
+  <!-- VIEW: HOME / LANDING PAGE (with inline patient list)               -->
+  <!-- ================================================================= -->
+  <div id="view-home" class="container">
+    <div class="hero">
+      <div class="hero-icon"><span class="hero-plus">(+)</span> HealthPlus</div>
+      <p>Modern Patient Care Management. Search, create, and manage patient records with ease.</p>
+
+      <!-- Metrics cards (above buttons) -->
+      <div class="stats-row" style="margin-bottom:2rem; max-width:900px; margin-left:auto; margin-right:auto;">
+        <div class="stat-card">
+          <div class="value" id="stat-total">--</div>
+          <div class="label">Patients on Server</div>
+        </div>
+        <div class="stat-card">
+          <div class="value" id="stat-server">HAPI FHIR R4</div>
+          <div class="label">Connected Server</div>
+        </div>
+        <div class="stat-card">
+          <div class="value">FHIR R4</div>
+          <div class="label">Specification Version</div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="browseAllPatients()">Browse All Patients</button>
+        <button class="btn btn-outline" onclick="showCreateForm()">Create New Patient</button>
+      </div>
+
+      <!-- Search bar below buttons -->
+      <div class="hero-search" style="margin-top:1.5rem; display:flex; justify-content:center;">
+        <div class="nav-search" style="max-width:500px; width:100%;">
+          <input type="text" id="hero-search-input" placeholder="Search by name or phone..."
+                 aria-label="Search patients by name or phone number">
+          <button class="nav-search-btn" onclick="handleHeroSearch()" aria-label="Search patients">Search</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Patient List (inline, below stats) -->
+    <div id="patient-list-section" style="display:none; margin-top:2rem;">
+      <div class="toolbar" id="toolbar">
+        <button class="btn btn-neutral btn-sm" id="bulk-update-btn" onclick="updateSelected()" disabled>Update Selected</button>
+        <button class="btn btn-neutral btn-sm" id="bulk-delete-btn" onclick="confirmDeleteSelected()" disabled>Delete Selected</button>
+        <span class="selection-info" id="selection-info"></span>
+      </div>
+      <div class="table-wrap">
+        <div id="patient-table-container"></div>
+        <div id="pagination-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- VIEW: PATIENT FORM (Create / Update)                               -->
+  <!-- ================================================================= -->
+  <div id="view-patient-form" class="container" style="display:none;">
+    <div class="form-card">
+      <div style="margin-bottom:1rem;">
+        <button class="btn btn-outline btn-sm" onclick="goBackFromForm()">&larr; Back</button>
+      </div>
+      <h2 class="form-title" id="form-title">Create New Patient</h2>
+      <form id="patient-form" onsubmit="submitForm(event)" novalidate>
+        <fieldset>
+          <legend>Personal Information</legend>
+          <div class="form-row">
+            <div class="form-group" id="fg-firstName">
+              <label>First Name <span class="required">*</span></label>
+              <input type="text" id="f-firstName" maxlength="50" autocomplete="given-name">
+              <div class="error-text" id="err-firstName"></div>
+            </div>
+            <div class="form-group" id="fg-lastName">
+              <label>Last Name <span class="required">*</span></label>
+              <input type="text" id="f-lastName" maxlength="50" autocomplete="family-name">
+              <div class="error-text" id="err-lastName"></div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" id="fg-gender">
+              <label>Gender <span class="required">*</span></label>
+              <select id="f-gender">
+                <option value="">-- Select --</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+                <option value="unknown">Unknown</option>
+              </select>
+              <div class="error-text" id="err-gender"></div>
+            </div>
+            <div class="form-group" id="fg-birthDate">
+              <label>Date of Birth <span class="required">*</span></label>
+              <input type="date" id="f-birthDate">
+              <div class="error-text" id="err-birthDate"></div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Contact Information</legend>
+          <div class="form-row">
+            <div class="form-group" id="fg-phone">
+              <label>Phone Number <span class="required">*</span></label>
+              <input type="tel" id="f-phone" placeholder="e.g. 555-123-4567" maxlength="20" autocomplete="tel">
+              <div class="error-text" id="err-phone"></div>
+            </div>
+            <div class="form-group"></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Address</legend>
+          <div class="form-group" id="fg-street">
+            <label>Street</label>
+            <input type="text" id="f-street" maxlength="100" autocomplete="street-address">
+          </div>
+          <div class="form-row">
+            <div class="form-group" id="fg-city">
+              <label>City</label>
+              <input type="text" id="f-city" maxlength="50" autocomplete="address-level2">
+            </div>
+            <div class="form-group" id="fg-state">
+              <label>State</label>
+              <select id="f-state" autocomplete="address-level1">
+                <option value="">-- Select --</option>
+                <option value="AL">AL</option><option value="AK">AK</option><option value="AZ">AZ</option>
+                <option value="AR">AR</option><option value="CA">CA</option><option value="CO">CO</option>
+                <option value="CT">CT</option><option value="DE">DE</option><option value="FL">FL</option>
+                <option value="GA">GA</option><option value="HI">HI</option><option value="ID">ID</option>
+                <option value="IL">IL</option><option value="IN">IN</option><option value="IA">IA</option>
+                <option value="KS">KS</option><option value="KY">KY</option><option value="LA">LA</option>
+                <option value="ME">ME</option><option value="MD">MD</option><option value="MA">MA</option>
+                <option value="MI">MI</option><option value="MN">MN</option><option value="MS">MS</option>
+                <option value="MO">MO</option><option value="MT">MT</option><option value="NE">NE</option>
+                <option value="NV">NV</option><option value="NH">NH</option><option value="NJ">NJ</option>
+                <option value="NM">NM</option><option value="NY">NY</option><option value="NC">NC</option>
+                <option value="ND">ND</option><option value="OH">OH</option><option value="OK">OK</option>
+                <option value="OR">OR</option><option value="PA">PA</option><option value="RI">RI</option>
+                <option value="SC">SC</option><option value="SD">SD</option><option value="TN">TN</option>
+                <option value="TX">TX</option><option value="UT">UT</option><option value="VT">VT</option>
+                <option value="VA">VA</option><option value="WA">WA</option><option value="WV">WV</option>
+                <option value="WI">WI</option><option value="WY">WY</option><option value="DC">DC</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" id="fg-zip">
+              <label>Zip Code</label>
+              <input type="text" id="f-zip" maxlength="10" placeholder="e.g. 12345" autocomplete="postal-code">
+              <div class="error-text" id="err-zip"></div>
+            </div>
+            <div class="form-group"></div>
+          </div>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="form-submit-btn">Save Patient</button>
+          <button type="button" class="btn btn-outline" onclick="goBackFromForm()">Cancel</button>
+        </div>
+      </form>
+
+      <!-- Appointment Calendar (shown in update mode) -->
+      <div class="appt-calendar" id="appt-calendar-section" style="display:none;">
+        <h3>Appointment Calendar</h3>
+        <div id="appt-calendar-content"></div>
+      </div>
+
+      <!-- Visit History (shown in update mode) -->
+      <div class="visit-history" id="visit-history-section" style="display:none;">
+        <h3>Visit History</h3>
+        <div id="visit-history-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- MODAL OVERLAY (Delete Confirmation)                                -->
+  <!-- ================================================================= -->
+  <div id="modal-overlay" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
+    <div class="modal-panel">
+      <h3 id="modal-title">Confirm Delete</h3>
+      <p id="modal-message">Are you sure you want to delete the selected patient(s)?</p>
+      <div class="modal-actions">
+        <button class="btn btn-outline btn-sm" onclick="hideModal()">Cancel</button>
+        <button class="btn btn-danger btn-sm" id="modal-confirm-btn" onclick="executeDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- TOAST NOTIFICATIONS                                                -->
+  <!-- ================================================================= -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script>
+    // =================================================================
+    // CONFIGURATION
+    // =================================================================
+    const FHIR_BASE = 'http://hapi.fhir.org/baseR4';
+    const FHIR_HEADERS = {
+      'Accept': 'application/fhir+json',
+      'Content-Type': 'application/fhir+json'
+    };
+
+    // =================================================================
+    // STATE
+    // =================================================================
+    const STATE = {
+      currentView: 'home',
+      patients: [],
+      totalPatients: 0,
+      pageSize: 50,
+      currentPage: 1,
+      totalPages: 0,
+      searchTerm: '',
+      searchType: 'name',
+      selectedIds: new Set(),
+      encounterCache: {},
+      appointmentCache: {},
+      formMode: null,
+      editingPatientId: null,
+      editingPatient: null,
+      isLoading: false,
+    };
+
+    // =================================================================
+    // FHIR REST CLIENT
+    // =================================================================
+    async function fhirFetch(path, options = {}) {
+      const url = path.startsWith('http') ? path : `${FHIR_BASE}/${path}`;
+      const resp = await fetch(url, {
+        ...options,
+        headers: { ...FHIR_HEADERS, ...options.headers }
+      });
+      if (resp.status === 204) return null;
+      if (!resp.ok) {
+        const body = await resp.json().catch(() => null);
+        const diag = body?.issue?.[0]?.diagnostics || '';
+        const msg = `HTTP ${resp.status}${diag ? ': ' + diag : ''}`;
+        throw new Error(msg);
+      }
+      return resp.json();
+    }
+
+    async function createPatient(resource) {
+      return fhirFetch('Patient', { method: 'POST', body: JSON.stringify(resource) });
+    }
+
+    async function readPatient(id) {
+      return fhirFetch(`Patient/${id}`);
+    }
+
+    async function updatePatient(id, resource) {
+      return fhirFetch(`Patient/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ ...resource, id })
+      });
+    }
+
+    async function deletePatientById(id) {
+      try {
+        return await fhirFetch(`Patient/${id}`, { method: 'DELETE' });
+      } catch (err) {
+        // If 409 Conflict (referential integrity), retry with cascade delete
+        if (err.message.includes('409') || err.message.toLowerCase().includes('conflict')) {
+          return fhirFetch(`Patient/${id}?_cascade=delete`, { method: 'DELETE' });
+        }
+        throw err;
+      }
+    }
+
+    function buildPatientResource(d) {
+      const resource = {
+        resourceType: 'Patient',
+        name: [{ use: 'official', family: d.lastName.trim(), given: [d.firstName.trim()] }],
+        gender: d.gender,
+        birthDate: d.birthDate,
+        telecom: [{ system: 'phone', value: d.phone.trim(), use: 'home' }],
+      };
+      if (d.street || d.city || d.state || d.zip) {
+        resource.address = [{
+          use: 'home',
+          line: d.street ? [d.street.trim()] : [],
+          city: d.city?.trim() || undefined,
+          state: d.state || undefined,
+          postalCode: d.zip?.trim() || undefined,
+          country: 'US'
+        }];
+      }
+      return resource;
+    }
+
+    // =================================================================
+    // VIEW ROUTER
+    // =================================================================
+    function showView(name) {
+      STATE.currentView = name;
+      document.getElementById('view-home').style.display = (name === 'home' || name === 'patient-list') ? 'block' : 'none';
+      document.getElementById('view-patient-form').style.display = name === 'patient-form' ? 'block' : 'none';
+      document.getElementById('nav-home-btn').classList.toggle('active', name === 'home' || name === 'patient-list');
+      if (name === 'patient-form') window.scrollTo(0, 0);
+      if (name === 'home') {
+        loadServerStats();
+        document.getElementById('patient-list-section').style.display = 'none';
+      }
+    }
+
+    function browseAllPatients() {
+      STATE.searchTerm = '';
+      document.getElementById('nav-search-input').value = '';
+      document.getElementById('hero-search-input').value = '';
+      STATE.currentView = 'patient-list';
+      document.getElementById('view-home').style.display = 'block';
+      document.getElementById('view-patient-form').style.display = 'none';
+      document.getElementById('patient-list-section').style.display = 'block';
+      loadPatientPage(1);
+      // Smooth scroll to patient list
+      setTimeout(() => {
+        document.getElementById('patient-list-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    function handleHeroSearch() {
+      const query = document.getElementById('hero-search-input').value.trim();
+      document.getElementById('nav-search-input').value = query;
+      STATE.searchTerm = query;
+      STATE.searchType = detectSearchType(query);
+      STATE.currentView = 'patient-list';
+      document.getElementById('view-home').style.display = 'block';
+      document.getElementById('view-patient-form').style.display = 'none';
+      document.getElementById('patient-list-section').style.display = 'block';
+      loadPatientPage(1);
+      setTimeout(() => {
+        document.getElementById('patient-list-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    function showCreateForm() {
+      setTimeout(() => {
+        STATE.formMode = 'create';
+        STATE.editingPatientId = null;
+        STATE.editingPatient = null;
+        resetForm();
+        document.getElementById('form-title').textContent = 'Create New Patient';
+        document.getElementById('form-submit-btn').textContent = 'Create Patient';
+        document.getElementById('visit-history-section').style.display = 'none';
+        document.getElementById('appt-calendar-section').style.display = 'none';
+        showView('patient-form');
+      }, 200);
+    }
+
+    async function showUpdateForm(patientId) {
+      STATE.formMode = 'update';
+      STATE.editingPatientId = patientId;
+      try {
+        const patient = await readPatient(patientId);
+        STATE.editingPatient = patient;
+        resetForm();
+        populateForm(patient);
+        document.getElementById('form-title').textContent = `Update Patient: ${getPatientName(patient)}`;
+        document.getElementById('form-submit-btn').textContent = 'Update Patient';
+        showView('patient-form');
+        loadVisitHistory(patientId);
+      } catch (err) {
+        showToast(`Error loading patient: ${err.message}`, 'error');
+      }
+    }
+
+    function goBackFromForm() {
+      setTimeout(() => {
+        showView('home');
+        if (STATE.patients.length > 0) {
+          document.getElementById('patient-list-section').style.display = 'block';
+          setTimeout(() => {
+            document.getElementById('patient-list-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        }
+      }, 200);
+    }
+
+    // =================================================================
+    // PATIENT LIST & TABLE
+    // =================================================================
+    async function loadPatientPage(page = 1) {
+      STATE.isLoading = true;
+      const prevPage = STATE.currentPage;
+      STATE.currentPage = page;
+      renderLoading();
+
+      try {
+        const offset = (page - 1) * STATE.pageSize;
+        const params = new URLSearchParams({
+          _count: STATE.pageSize.toString(),
+          _offset: offset.toString(),
+          _sort: '-_lastUpdated',
+          _total: 'accurate'
+        });
+
+        if (STATE.searchTerm) {
+          if (STATE.searchType === 'phone') {
+            params.set('phone', STATE.searchTerm);
+          } else {
+            params.set('name', STATE.searchTerm);
+          }
+        }
+
+        const bundle = await fhirFetch(`Patient?${params.toString()}`);
+        STATE.patients = bundle.entry?.map(e => e.resource) || [];
+        STATE.totalPatients = bundle.total ?? STATE.patients.length;
+        STATE.totalPages = Math.max(1, Math.ceil(STATE.totalPatients / STATE.pageSize));
+        STATE.selectedIds.clear();
+
+        renderPatientTable();
+        renderPagination();
+        updateBulkBar();
+        batchLoadExtras(STATE.patients);
+      } catch (err) {
+        STATE.currentPage = prevPage;
+        document.getElementById('patient-table-container').innerHTML =
+          `<div class="empty-state"><p style="color:var(--error);">Error loading page ${page}: ${escapeHtml(err.message)}</p>
+           <button class="btn btn-outline btn-sm" style="margin-top:0.75rem;" onclick="loadPatientPage(${page})">Retry Page ${page}</button></div>`;
+        renderPagination();
+      } finally {
+        STATE.isLoading = false;
+      }
+    }
+
+    function renderLoading() {
+      document.getElementById('patient-table-container').innerHTML =
+        '<div class="loading-center"><div class="spinner"></div><p style="margin-top:0.75rem;color:var(--gray-500);">Loading patients...</p></div>';
+      document.getElementById('pagination-bar').innerHTML = '';
+    }
+
+    function renderPatientTable() {
+      const container = document.getElementById('patient-table-container');
+      if (STATE.patients.length === 0) {
+        container.innerHTML = `<div class="empty-state">
+          <div class="icon">&#128269;</div>
+          <p>No patients found.</p>
+          <button class="btn btn-primary" onclick="showCreateForm()">Create New Patient</button>
+        </div>`;
+        return;
+      }
+
+      const rows = STATE.patients.map(p => {
+        const name = getPatientName(p);
+        const gender = p.gender || 'unknown';
+        const dob = p.birthDate || 'N/A';
+        const phone = p.telecom?.find(t => t.system === 'phone')?.value || 'N/A';
+        const lastUp = p.meta?.lastUpdated ? formatDateTime(p.meta.lastUpdated) : 'N/A';
+        const checked = STATE.selectedIds.has(p.id) ? 'checked' : '';
+        const selClass = STATE.selectedIds.has(p.id) ? ' selected' : '';
+        const enc = STATE.encounterCache[p.id];
+        const appt = STATE.appointmentCache[p.id];
+        const reason = enc ? escapeHtml(enc.reason) : '<span class="loading-text">Loading...</span>';
+        const nextAppt = appt ? escapeHtml(appt.next) : '<span class="loading-text">Loading...</span>';
+
+        return `<tr data-id="${p.id}" class="${selClass}">
+          <td><input type="checkbox" class="pt-cb" value="${p.id}" ${checked}
+               onchange="handleSelectOne('${p.id}',this.checked)" aria-label="Select ${escapeHtml(name)}"></td>
+          <td class="clickable" onclick="showUpdateForm('${p.id}')">${escapeHtml(name)}</td>
+          <td><span class="gender-badge gender-${gender}">${gender}</span></td>
+          <td>${dob}</td>
+          <td>${escapeHtml(phone)}</td>
+          <td class="text-muted text-sm">${lastUp}</td>
+          <td class="enc-cell" data-pid="${p.id}">${reason}</td>
+          <td class="appt-cell" data-pid="${p.id}">${nextAppt}</td>
+        </tr>`;
+      }).join('');
+
+      container.innerHTML = `<table class="patient-table" aria-label="Patient list">
+        <thead><tr>
+          <th style="width:40px"><input type="checkbox" id="select-all-cb"
+               onchange="handleSelectAll(this.checked)" aria-label="Select all patients"></th>
+          <th>Name</th><th>Gender</th><th>Date of Birth</th><th>Phone</th>
+          <th>Last Updated</th><th>Reason for Visit</th><th>Next Appointment</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+    }
+
+    // =================================================================
+    // PAGINATION
+    // =================================================================
+    function renderPagination() {
+      const { currentPage, totalPages, totalPatients, pageSize } = STATE;
+      if (STATE.patients.length === 0) {
+        document.getElementById('pagination-bar').innerHTML = '';
+        return;
+      }
+
+      const start = (currentPage - 1) * pageSize + 1;
+      const end = Math.min(currentPage * pageSize, totalPatients);
+      const pages = buildPageNumbers(currentPage, totalPages);
+
+      const pageNumsHtml = pages.map(p => {
+        if (p === '...') return '<span class="page-ellipsis">...</span>';
+        return `<button class="page-btn${p === currentPage ? ' active' : ''}" onclick="goToPage(${p})">${p}</button>`;
+      }).join('');
+
+      document.getElementById('pagination-bar').innerHTML = `<div class="pagination-bar">
+        <div class="page-size-select">
+          <label for="page-size">Show</label>
+          <select id="page-size" onchange="changePageSize(+this.value)">
+            ${[10, 50, 100].map(n => `<option value="${n}"${n === pageSize ? ' selected' : ''}>${n}</option>`).join('')}
+          </select>
+          <span>per page</span>
+        </div>
+        <div class="page-numbers">
+          <button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>Prev</button>
+          ${pageNumsHtml}
+          <button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>Next</button>
+        </div>
+        <span class="page-info">Showing ${start}-${end} of ${totalPatients}</span>
+      </div>`;
+    }
+
+    function buildPageNumbers(current, total) {
+      if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+      const pages = [];
+      const range = 2;
+      for (let i = 1; i <= total; i++) {
+        if (i === 1 || i === total || (i >= current - range && i <= current + range)) {
+          pages.push(i);
+        } else if (pages[pages.length - 1] !== '...') {
+          pages.push('...');
+        }
+      }
+      return pages;
+    }
+
+    function goToPage(page) {
+      if (page < 1 || page > STATE.totalPages) return;
+      loadPatientPage(page);
+    }
+
+    function changePageSize(size) {
+      STATE.pageSize = size;
+      loadPatientPage(1);
+    }
+
+    // =================================================================
+    // SEARCH
+    // =================================================================
+    let searchTimeout = null;
+
+    function handleSearch() {
+      const query = document.getElementById('nav-search-input').value.trim();
+      document.getElementById('hero-search-input').value = query;
+      STATE.searchTerm = query;
+      STATE.searchType = detectSearchType(query);
+      STATE.currentView = 'patient-list';
+      document.getElementById('view-home').style.display = 'block';
+      document.getElementById('view-patient-form').style.display = 'none';
+      document.getElementById('patient-list-section').style.display = 'block';
+      loadPatientPage(1);
+      setTimeout(() => {
+        document.getElementById('patient-list-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    function detectSearchType(query) {
+      const cleaned = query.replace(/[\s\-\(\)\+\.]/g, '');
+      return /^\d{7,}$/.test(cleaned) ? 'phone' : 'name';
+    }
+
+    function handleSearchInput() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => handleSearch(), 400);
+    }
+
+    // =================================================================
+    // SELECTION & BULK OPERATIONS
+    // =================================================================
+    function handleSelectAll(checked) {
+      STATE.selectedIds.clear();
+      if (checked) {
+        STATE.patients.forEach(p => STATE.selectedIds.add(p.id));
+      }
+      document.querySelectorAll('.pt-cb').forEach(cb => { cb.checked = checked; });
+      document.querySelectorAll('.patient-table tbody tr').forEach(tr => {
+        tr.classList.toggle('selected', checked);
+      });
+      updateBulkBar();
+    }
+
+    function handleSelectOne(id, checked) {
+      if (checked) { STATE.selectedIds.add(id); } else { STATE.selectedIds.delete(id); }
+      const tr = document.querySelector(`tr[data-id="${id}"]`);
+      if (tr) tr.classList.toggle('selected', checked);
+      const allCb = document.getElementById('select-all-cb');
+      if (allCb) allCb.checked = STATE.selectedIds.size === STATE.patients.length;
+      updateBulkBar();
+    }
+
+    function updateBulkBar() {
+      const count = STATE.selectedIds.size;
+      const updateBtn = document.getElementById('bulk-update-btn');
+      const deleteBtn = document.getElementById('bulk-delete-btn');
+      updateBtn.disabled = count !== 1;
+      deleteBtn.disabled = count === 0;
+      // Toggle Delete to red when selections exist, neutral otherwise
+      deleteBtn.classList.toggle('btn-danger', count > 0);
+      deleteBtn.classList.toggle('btn-neutral', count === 0);
+      document.getElementById('selection-info').textContent =
+        count > 0 ? `${count} patient(s) selected` : '';
+    }
+
+    function updateSelected() {
+      if (STATE.selectedIds.size !== 1) return;
+      const id = [...STATE.selectedIds][0];
+      showUpdateForm(id);
+    }
+
+    function confirmDeleteSelected() {
+      const count = STATE.selectedIds.size;
+      if (count === 0) return;
+      document.getElementById('modal-title').textContent = `Delete ${count} Patient(s)?`;
+      document.getElementById('modal-message').textContent =
+        `This will permanently delete ${count} patient record(s). This action cannot be undone.`;
+      document.getElementById('modal-overlay').style.display = 'flex';
+    }
+
+    async function executeDelete() {
+      hideModal();
+      const ids = [...STATE.selectedIds];
+      let ok = 0, fail = 0;
+      let lastErr = '';
+      for (const id of ids) {
+        try { await deletePatientById(id); ok++; }
+        catch (err) { fail++; lastErr = err.message; }
+      }
+      STATE.selectedIds.clear();
+      if (ok > 0) showToast(`Deleted ${ok} patient(s) successfully.`, 'success');
+      if (fail > 0) showToast(`Failed to delete ${fail} patient(s). ${lastErr}`, 'error');
+      loadPatientPage(STATE.currentPage);
+    }
+
+    function hideModal() {
+      document.getElementById('modal-overlay').style.display = 'none';
+    }
+
+    // =================================================================
+    // PATIENT FORM
+    // =================================================================
+    function resetForm() {
+      document.getElementById('patient-form').reset();
+      document.querySelectorAll('.form-group').forEach(fg => fg.classList.remove('has-error'));
+      document.querySelectorAll('.error-text').forEach(et => { et.textContent = ''; });
+    }
+
+    function populateForm(p) {
+      const name = p.name?.[0];
+      document.getElementById('f-firstName').value = name?.given?.[0] || '';
+      document.getElementById('f-lastName').value = name?.family || '';
+      document.getElementById('f-gender').value = p.gender || '';
+      document.getElementById('f-birthDate').value = p.birthDate || '';
+      const phone = p.telecom?.find(t => t.system === 'phone');
+      document.getElementById('f-phone').value = phone?.value || '';
+      const addr = p.address?.[0];
+      document.getElementById('f-street').value = addr?.line?.[0] || '';
+      document.getElementById('f-city').value = addr?.city || '';
+      document.getElementById('f-state').value = addr?.state || '';
+      document.getElementById('f-zip').value = addr?.postalCode || '';
+    }
+
+    function collectFormData() {
+      return {
+        firstName: document.getElementById('f-firstName').value,
+        lastName: document.getElementById('f-lastName').value,
+        gender: document.getElementById('f-gender').value,
+        birthDate: document.getElementById('f-birthDate').value,
+        phone: document.getElementById('f-phone').value,
+        street: document.getElementById('f-street').value,
+        city: document.getElementById('f-city').value,
+        state: document.getElementById('f-state').value,
+        zip: document.getElementById('f-zip').value,
+      };
+    }
+
+    function validateForm(data) {
+      const errors = {};
+      if (!data.firstName?.trim()) errors.firstName = 'First name is required.';
+      else if (!/^[a-zA-Z\s\-']{1,50}$/.test(data.firstName.trim())) errors.firstName = 'Letters, spaces, hyphens, or apostrophes only.';
+
+      if (!data.lastName?.trim()) errors.lastName = 'Last name is required.';
+      else if (!/^[a-zA-Z\s\-']{1,50}$/.test(data.lastName.trim())) errors.lastName = 'Letters, spaces, hyphens, or apostrophes only.';
+
+      if (!['male', 'female', 'other', 'unknown'].includes(data.gender)) errors.gender = 'Please select a gender.';
+
+      if (!data.birthDate) errors.birthDate = 'Date of birth is required.';
+      else {
+        const dob = new Date(data.birthDate + 'T00:00:00');
+        if (isNaN(dob.getTime())) errors.birthDate = 'Invalid date.';
+        else if (dob > new Date()) errors.birthDate = 'Cannot be in the future.';
+        else if (dob.getFullYear() < 1900) errors.birthDate = 'Must be after 1900.';
+      }
+
+      if (!data.phone?.trim()) errors.phone = 'Phone number is required.';
+      else if (!/^[\d\s\-\(\)\+\.]{7,20}$/.test(data.phone.trim())) errors.phone = 'Enter a valid phone number.';
+
+      if (data.zip && !/^\d{5}(-\d{4})?$/.test(data.zip.trim())) errors.zip = 'Enter a valid ZIP (e.g. 12345).';
+
+      return { isValid: Object.keys(errors).length === 0, errors };
+    }
+
+    function showFieldErrors(errors) {
+      document.querySelectorAll('.form-group').forEach(fg => fg.classList.remove('has-error'));
+      document.querySelectorAll('.error-text').forEach(et => { et.textContent = ''; });
+      for (const [field, msg] of Object.entries(errors)) {
+        const fg = document.getElementById(`fg-${field}`);
+        const et = document.getElementById(`err-${field}`);
+        if (fg) fg.classList.add('has-error');
+        if (et) et.textContent = msg;
+      }
+    }
+
+    async function submitForm(e) {
+      e.preventDefault();
+      const data = collectFormData();
+      const { isValid, errors } = validateForm(data);
+      if (!isValid) { showFieldErrors(errors); return; }
+
+      const btn = document.getElementById('form-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      try {
+        const resource = buildPatientResource(data);
+        if (STATE.formMode === 'create') {
+          await createPatient(resource);
+          showToast('Patient created successfully.', 'success');
+        } else {
+          const merged = { ...STATE.editingPatient, ...resource };
+          await updatePatient(STATE.editingPatientId, merged);
+          showToast('Patient updated successfully.', 'success');
+        }
+        STATE.searchTerm = '';
+        document.getElementById('nav-search-input').value = '';
+        document.getElementById('hero-search-input').value = '';
+        showView('home');
+        document.getElementById('patient-list-section').style.display = 'block';
+        loadPatientPage(1);
+        setTimeout(() => {
+          document.getElementById('patient-list-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 200);
+      } catch (err) {
+        showToast(`Error: ${err.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = STATE.formMode === 'create' ? 'Create Patient' : 'Update Patient';
+      }
+    }
+
+    // =================================================================
+    // ENCOUNTER / APPOINTMENT INTEGRATION
+    // =================================================================
+    async function batchLoadExtras(patients) {
+      const queue = [...patients];
+      const concurrency = 6;
+      const workers = Array(concurrency).fill(null).map(async () => {
+        while (queue.length > 0) {
+          const p = queue.shift();
+          await Promise.allSettled([
+            loadEncounter(p.id),
+            loadAppointment(p.id)
+          ]);
+        }
+      });
+      await Promise.allSettled(workers);
+    }
+
+    async function loadEncounter(pid) {
+      if (STATE.encounterCache[pid]) { updateCell('.enc-cell', pid, STATE.encounterCache[pid].reason); return; }
+      try {
+        const bundle = await fhirFetch(`Encounter?subject=Patient/${pid}&_sort=-date&_count=1`);
+        const enc = bundle.entry?.[0]?.resource;
+        const reason = enc?.reasonCode?.[0]?.coding?.[0]?.display
+                    || enc?.reasonCode?.[0]?.text
+                    || enc?.type?.[0]?.coding?.[0]?.display
+                    || 'N/A';
+        STATE.encounterCache[pid] = { reason };
+        updateCell('.enc-cell', pid, reason);
+      } catch {
+        STATE.encounterCache[pid] = { reason: 'N/A' };
+        updateCell('.enc-cell', pid, 'N/A');
+      }
+    }
+
+    async function loadAppointment(pid) {
+      if (STATE.appointmentCache[pid]) { updateCell('.appt-cell', pid, STATE.appointmentCache[pid].next); return; }
+      try {
+        const bundle = await fhirFetch(`Appointment?patient=Patient/${pid}&status=proposed,booked&_sort=date&_count=1`);
+        const appt = bundle.entry?.[0]?.resource;
+        const next = appt?.start ? formatDateTime(appt.start) : 'No Appointment';
+        STATE.appointmentCache[pid] = { next };
+        updateCell('.appt-cell', pid, next);
+      } catch {
+        STATE.appointmentCache[pid] = { next: 'No Appointment' };
+        updateCell('.appt-cell', pid, 'No Appointment');
+      }
+    }
+
+    function updateCell(selector, pid, text) {
+      const cell = document.querySelector(`${selector}[data-pid="${pid}"]`);
+      if (cell) cell.textContent = text;
+    }
+
+    // Visit history in form + appointment calendar
+    let calendarDates = [];
+    let calendarMonth = new Date();
+
+    async function loadVisitHistory(patientId) {
+      const section = document.getElementById('visit-history-section');
+      const content = document.getElementById('visit-history-content');
+      const calSection = document.getElementById('appt-calendar-section');
+      const calContent = document.getElementById('appt-calendar-content');
+      section.style.display = 'block';
+      calSection.style.display = 'block';
+      content.innerHTML = '<p class="loading-text">Loading visit history...</p>';
+      calContent.innerHTML = '<p class="loading-text">Loading calendar...</p>';
+      try {
+        const bundle = await fhirFetch(`Encounter?subject=Patient/${patientId}&_sort=-date&_count=50`);
+        const encounters = bundle.entry?.map(e => e.resource) || [];
+
+        // Extract dates for calendar
+        calendarDates = [];
+        encounters.forEach(enc => {
+          if (enc.period?.start) {
+            const d = new Date(enc.period.start);
+            if (!isNaN(d.getTime())) calendarDates.push(d.toISOString().slice(0, 10));
+          }
+        });
+
+        // Set calendar to most recent encounter month, or current month
+        if (calendarDates.length > 0) {
+          calendarMonth = new Date(calendarDates[0] + 'T00:00:00');
+        } else {
+          calendarMonth = new Date();
+        }
+        renderCalendar();
+
+        if (encounters.length === 0) {
+          content.innerHTML = '<p class="text-muted">No visit history found.</p>';
+          return;
+        }
+        const rows = encounters.map(enc => {
+          const date = enc.period?.start ? formatDateTime(enc.period.start) : 'N/A';
+          const reason = enc.reasonCode?.[0]?.coding?.[0]?.display
+                      || enc.reasonCode?.[0]?.text
+                      || enc.type?.[0]?.coding?.[0]?.display
+                      || 'N/A';
+          const status = enc.status || 'N/A';
+          const clazz = enc.class?.display || enc.class?.code || 'N/A';
+          return `<tr><td>${date}</td><td>${escapeHtml(reason)}</td><td>${status}</td><td>${clazz}</td></tr>`;
+        }).join('');
+        content.innerHTML = `<table class="visit-table">
+          <thead><tr><th>Date/Time</th><th>Reason</th><th>Status</th><th>Class</th></tr></thead>
+          <tbody>${rows}</tbody></table>`;
+      } catch {
+        content.innerHTML = '<p class="text-muted">Unable to load visit history.</p>';
+        calContent.innerHTML = '<p class="text-muted">Unable to load calendar.</p>';
+      }
+    }
+
+    function renderCalendar() {
+      const container = document.getElementById('appt-calendar-content');
+      const year = calendarMonth.getFullYear();
+      const month = calendarMonth.getMonth();
+      const today = new Date();
+      const todayStr = today.toISOString().slice(0, 10);
+
+      const monthNames = ['January','February','March','April','May','June',
+        'July','August','September','October','November','December'];
+      const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      // Build date set for this month
+      const apptSet = new Set(calendarDates.filter(d => d.startsWith(`${year}-${String(month+1).padStart(2,'0')}`)));
+
+      let html = `<div class="cal-nav">
+        <button onclick="changeCalMonth(-1)">&larr;</button>
+        <span class="cal-month-label">${monthNames[month]} ${year}</span>
+        <button onclick="changeCalMonth(1)">&rarr;</button>
+      </div>
+      <div class="cal-grid">`;
+
+      dayNames.forEach(d => { html += `<div class="cal-day-header">${d}</div>`; });
+
+      for (let i = 0; i < firstDay; i++) {
+        html += '<div class="cal-day empty"></div>';
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isToday = dateStr === todayStr;
+        const hasAppt = apptSet.has(dateStr);
+        let cls = 'cal-day';
+        if (isToday) cls += ' today';
+        if (hasAppt) cls += ' has-appt';
+        html += `<div class="${cls}">${d}</div>`;
+      }
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function changeCalMonth(delta) {
+      calendarMonth.setMonth(calendarMonth.getMonth() + delta);
+      renderCalendar();
+    }
+
+    // =================================================================
+    // SERVER STATS (Home page)
+    // =================================================================
+    async function loadServerStats() {
+      try {
+        const bundle = await fhirFetch('Patient?_summary=count');
+        document.getElementById('stat-total').textContent =
+          bundle.total != null ? bundle.total.toLocaleString() : '--';
+      } catch {
+        document.getElementById('stat-total').textContent = '--';
+      }
+    }
+
+    // =================================================================
+    // UTILITIES
+    // =================================================================
+    function getPatientName(p) {
+      const n = p.name?.[0];
+      if (!n) return 'Unknown';
+      return `${(n.given || []).join(' ')} ${n.family || ''}`.trim() || n.text || 'Unknown';
+    }
+
+    function formatDateTime(iso) {
+      if (!iso) return 'N/A';
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+        + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => { toast.remove(); }, 4000);
+    }
+
+    // =================================================================
+    // EVENT LISTENERS & INIT
+    // =================================================================
+    document.getElementById('nav-search-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleSearch();
+    });
+
+    document.getElementById('hero-search-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleHeroSearch();
+    });
+
+    document.getElementById('modal-overlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) hideModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') hideModal();
+    });
+
+    // Salmon pink flash on any button click
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn, .nav-search-btn, .page-btn');
+      if (btn && !btn.disabled) {
+        btn.classList.add('btn-flash');
+        setTimeout(() => btn.classList.remove('btn-flash'), 250);
+      }
+    });
+
+    // Form field blur validation
+    ['firstName', 'lastName', 'gender', 'birthDate', 'phone', 'zip'].forEach(field => {
+      const el = document.getElementById(`f-${field}`);
+      if (el) {
+        el.addEventListener('blur', () => {
+          const data = collectFormData();
+          const { errors } = validateForm(data);
+          const fg = document.getElementById(`fg-${field}`);
+          const et = document.getElementById(`err-${field}`);
+          if (errors[field]) {
+            if (fg) fg.classList.add('has-error');
+            if (et) et.textContent = errors[field];
+          } else {
+            if (fg) fg.classList.remove('has-error');
+            if (et) et.textContent = '';
+          }
+        });
+      }
+    });
+
+    // Init: load server stats
+    loadServerStats();
+  </script>
+</body>
+</html>

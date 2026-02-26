@@ -1107,7 +1107,7 @@ function getNodeRadius(d) {
 }
 
 // Collapse children of nodes that should start closed in the default view
-const defaultCollapsedNames = new Set(['BackboneElement', 'Binary', 'Bundle', 'Parameters']);
+const defaultCollapsedNames = new Set(['BackboneElement', 'DataType', 'PrimitiveType', 'Binary', 'Bundle', 'Parameters']);
 function collapseSpecificNodes(d) {
   if (d.children) {
     if (defaultCollapsedNames.has(d.data.name)) {
@@ -1372,7 +1372,7 @@ function fitTreeToScreen() {
   const midY = (minY + maxY) / 2;
   const midX = (minX + maxX) / 2;
   const tx = W / 2 - midY * scale;
-  const ty = H / 2 - midX * scale;
+  const ty = H * 0.35 - midX * scale;
 
   svg.transition().duration(600).call(
     zoomBehavior.transform,

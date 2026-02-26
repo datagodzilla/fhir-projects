@@ -2,6 +2,23 @@
 
 A portfolio of five healthcare interoperability applications built with **HL7 FHIR R4**, progressing from basic REST API clients to SMART on FHIR-authenticated apps and server-side implementations. Each project is a self-contained application that demonstrates real-world FHIR integration patterns.
 
+## Introduction: Understanding FHIR R4 Resources
+
+Before diving into the applications, explore the **FHIR R4 Resource Hierarchy** - an interactive visualization of all 264 nodes in the FHIR R4 (4.0.1) specification.
+
+[![Explore FHIR R4 Hierarchy](https://img.shields.io/badge/Explore-FHIR_R4_Resource_Hierarchy-40B5AD?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+PHBhdGggZD0iTTEyIDJMMyA3bDkgNSA5LTV6TTMgMTdsOSA1IDktNXoiLz48L3N2Zz4=&logoColor=white)](fhir_r4_hierarchy.html)
+
+This single-file interactive tool provides four complementary views of the FHIR R4 specification:
+
+| View | Description |
+|------|-------------|
+| **By Module** | Resources grouped by FHIR specification layers (L1 Foundation through L6 Specialized) |
+| **By Category** | Resources grouped by HL7 categories: Foundation, Base, Clinical, Financial, Specialized |
+| **By Inheritance (Table)** | Type hierarchy showing `extends` relationships (Base → Element, Resource → DomainResource) |
+| **Inheritance Tree** | Interactive D3.js node-link tree with click-to-expand, zoom, pan, and search |
+
+**Key stats**: 143 Resources, 38 Datatypes, 57 Normative elements, 140+ DomainResource types. Click any resource name to open its HL7 FHIR R4 specification page.
+
 ## Applications
 
 | # | Application | Description | Tech Stack | Status |
@@ -81,6 +98,7 @@ fhir-projects/
 ├── README.md
 ├── .gitignore
 ├── LICENSE
+├── fhir_r4_hierarchy.html               # Interactive FHIR R4 resource hierarchy explorer
 ├── 1_Patient_Management_Application/    # Complete
 ├── 2_SMART_Patient_App_Epic/            # Coming Soon
 ├── 3_SMART_Patient_App_Cerner/          # Coming Soon

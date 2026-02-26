@@ -1106,6 +1106,19 @@ function getNodeRadius(d) {
   return 5;
 }
 
+// Collapse children of nodes that should start closed in the default view
+const defaultCollapsedNames = new Set(['BackboneElement', 'Binary', 'Bundle', 'Parameters']);
+function collapseSpecificNodes(d) {
+  if (d.children) {
+    if (defaultCollapsedNames.has(d.data.name)) {
+      d._children = d.children;
+      d.children = null;
+    } else {
+      d.children.forEach(collapseSpecificNodes);
+    }
+  }
+}
+
 function initTree() {
   const container = document.getElementById('tree-container');
   const svgEl = document.getElementById('tree-svg');
@@ -1156,6 +1169,7 @@ function initTree() {
     }
   }
   collapseAtDepth(root, 3);
+  collapseSpecificNodes(root);
 
   renderTree(root);
 
@@ -1407,6 +1421,7 @@ function resetTreeToDefault() {
     if (d.children && d.depth >= maxDepth) { d._children = d.children; d.children = null; }
   }
   collapseAtDepth(root, 3);
+  collapseSpecificNodes(root);
   renderTree(root);
   // Restore the saved default zoom/position, or fit to screen if not saved yet
   setTimeout(() => {

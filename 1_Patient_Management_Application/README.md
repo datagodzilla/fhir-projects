@@ -34,7 +34,7 @@ python3 -m http.server 8080
 
 ### Option 2: Open Directly
 
-Open `index.html` in your browser. Note: some FHIR API calls may fail due to CORS restrictions from `file://` protocol. Using a local server avoids this.
+Open `patient_management_app.html` in your browser. Note: some FHIR API calls may fail due to CORS restrictions from `file://` protocol. Using a local server avoids this.
 
 ## FHIR API Endpoints
 
@@ -51,7 +51,7 @@ Open `index.html` in your browser. Note: some FHIR API calls may fail due to COR
 | Appointment | `GET` | `/Appointment?patient=Patient/{id}&status=proposed,booked&_sort=date&_count=1` | Next appointment |
 | Server Stats | `GET` | `/Patient?_summary=count` | Total patient count |
 
-**Base URL**: `http://hapi.fhir.org/baseR4`
+**Base URL**: `https://hapi.fhir.org/baseR4`
 
 ## Tech Stack
 
@@ -68,7 +68,7 @@ Open `index.html` in your browser. Note: some FHIR API calls may fail due to COR
 Single-file SPA with three views toggled via CSS `display`, centralized `STATE` object, and a `fhirFetch()` wrapper for all REST communication.
 
 ```
-Browser (index.html)          HAPI FHIR R4 Server
+Browser (patient_management_app.html)   HAPI FHIR R4 Server
 ┌─────────────────────┐       ┌──────────────────────┐
 │  UI Layer (3 views)  │       │  REST API             │
 │  STATE Object        │──────>│  Patient / Encounter  │
@@ -83,7 +83,7 @@ See [docs/architecture.md](docs/architecture.md) for detailed diagrams and code 
 
 ```
 1_Patient_Management_Application/
-├── index.html              # The complete application (single file)
+├── patient_management_app.html  # The complete application (single file)
 ├── README.md               # This file
 ├── assets/
 │   └── screenshot.png      # Application screenshot
@@ -98,7 +98,7 @@ See [docs/architecture.md](docs/architecture.md) for detailed diagrams and code 
 ## Known Limitations
 
 - **Public server data**: HAPI FHIR public server is shared globally. Patient data may be modified or deleted by other users at any time.
-- **CORS from file://**: Opening `index.html` directly may cause intermittent CORS failures. Use a local HTTP server for reliable operation.
+- **CORS from file://**: Opening `patient_management_app.html` directly may cause intermittent CORS failures. Use a local HTTP server for reliable operation.
 - **No authentication**: The public test server requires no auth. Production FHIR servers require SMART on FHIR OAuth2 (covered in Apps 2-4).
 - **Visit history is read-only**: The app reads Encounters but does not create them (out of scope for this project).
 

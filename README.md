@@ -90,7 +90,7 @@ fhir-projects/
 
 Each application directory contains:
 - `README.md` - Setup instructions and documentation
-- `index.html` or source code - The application
+- Application source code (HTML/JS or language-specific)
 - `assets/` - Screenshots and visual assets
 - `docs/` - Architecture docs, requirements, blog posts
 - `scripts/` - Utility scripts

@@ -259,26 +259,30 @@
     .patient-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
+      table-layout: fixed;
     }
     .patient-table th {
       background: var(--primary-bg);
       color: var(--primary-dark);
-      padding: 0.45rem 0.65rem;
+      padding: 0.35rem 0.45rem;
       text-align: left;
-      font-size: 0.73rem;
+      font-size: 0.68rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
       border-bottom: 2px solid var(--primary);
       white-space: nowrap;
+      overflow: hidden;
     }
     .patient-table td {
-      padding: 0.35rem 0.65rem;
+      padding: 0.25rem 0.45rem;
       border-bottom: 1px solid var(--gray-200);
       color: var(--gray-800);
       vertical-align: middle;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .patient-table tbody tr:hover { background: var(--primary-bg); }
     .patient-table tbody tr.selected { background: #d5f0df; }
@@ -290,19 +294,19 @@
     .patient-table .clickable:hover { text-decoration: underline; }
     .gender-badge {
       display: inline-block;
-      padding: 0.15rem 0.55rem;
+      padding: 0.1rem 0.4rem;
       border-radius: 10px;
-      font-size: 0.72rem;
+      font-size: 0.65rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.2px;
     }
     .gender-male { background: var(--male-bg); color: var(--male-text); }
     .gender-female { background: var(--female-bg); color: var(--female-text); }
     .gender-other, .gender-unknown { background: var(--gray-200); color: var(--gray-600); }
     .text-muted { color: var(--gray-500); }
-    .text-sm { font-size: 0.8rem; }
-    .loading-text { color: var(--gray-400); font-style: italic; font-size: 0.82rem; }
+    .text-sm { font-size: 0.75rem; }
+    .loading-text { color: var(--gray-400); font-style: italic; font-size: 0.75rem; }
 
     /* Pagination */
     .pagination-bar {
@@ -993,19 +997,31 @@
     }
 
     async function showUpdateForm(patientId) {
+      // Abort any running batch requests to free connections
+      if (batchAbort) { batchAbort.abort(); batchAbort = null; }
+
       STATE.formMode = 'update';
       STATE.editingPatientId = patientId;
+
+      // Show form immediately with loading state
+      resetForm();
+      document.getElementById('form-title').textContent = 'Loading Patient...';
+      document.getElementById('form-submit-btn').textContent = 'Update Patient';
+      document.getElementById('form-submit-btn').disabled = true;
+      document.getElementById('visit-history-section').style.display = 'none';
+      document.getElementById('appt-calendar-section').style.display = 'none';
+      showView('patient-form');
+
       try {
         const patient = await readPatient(patientId);
         STATE.editingPatient = patient;
-        resetForm();
         populateForm(patient);
         document.getElementById('form-title').textContent = `Update Patient: ${getPatientName(patient)}`;
-        document.getElementById('form-submit-btn').textContent = 'Update Patient';
-        showView('patient-form');
+        document.getElementById('form-submit-btn').disabled = false;
         loadVisitHistory(patientId);
       } catch (err) {
         showToast(`Error loading patient: ${err.message}`, 'error');
+        goBackFromForm();
       }
     }
 
@@ -1090,7 +1106,7 @@
         const gender = p.gender || 'unknown';
         const dob = p.birthDate || 'N/A';
         const phone = p.telecom?.find(t => t.system === 'phone')?.value || 'N/A';
-        const lastUp = p.meta?.lastUpdated ? formatDateTime(p.meta.lastUpdated) : 'N/A';
+        const lastUp = p.meta?.lastUpdated ? formatDateShort(p.meta.lastUpdated) : 'N/A';
         const checked = STATE.selectedIds.has(p.id) ? 'checked' : '';
         const selClass = STATE.selectedIds.has(p.id) ? ' selected' : '';
         const enc = STATE.encounterCache[p.id];
@@ -1112,11 +1128,21 @@
       }).join('');
 
       container.innerHTML = `<table class="patient-table" aria-label="Patient list">
+        <colgroup>
+          <col style="width:32px">
+          <col style="width:18%">
+          <col style="width:7%">
+          <col style="width:10%">
+          <col style="width:12%">
+          <col style="width:10%">
+          <col style="width:20%">
+          <col style="width:15%">
+        </colgroup>
         <thead><tr>
-          <th style="width:40px"><input type="checkbox" id="select-all-cb"
+          <th><input type="checkbox" id="select-all-cb"
                onchange="handleSelectAll(this.checked)" aria-label="Select all patients"></th>
-          <th>Name</th><th>Gender</th><th>Date of Birth</th><th>Phone</th>
-          <th>Last Updated</th><th>Reason for Visit</th><th>Next Appointment</th>
+          <th>Name</th><th>Gender</th><th>DOB</th><th>Phone</th>
+          <th>Updated</th><th>Visit Reason</th><th>Next Appt</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
@@ -1398,25 +1424,30 @@
     // =================================================================
     // ENCOUNTER / APPOINTMENT INTEGRATION
     // =================================================================
+    let batchAbort = null;
+
     async function batchLoadExtras(patients) {
+      if (batchAbort) batchAbort.abort();
+      batchAbort = new AbortController();
+      const signal = batchAbort.signal;
       const queue = [...patients];
-      const concurrency = 6;
+      const concurrency = 2;
       const workers = Array(concurrency).fill(null).map(async () => {
-        while (queue.length > 0) {
+        while (queue.length > 0 && !signal.aborted) {
           const p = queue.shift();
           await Promise.allSettled([
-            loadEncounter(p.id),
-            loadAppointment(p.id)
+            loadEncounter(p.id, signal),
+            loadAppointment(p.id, signal)
           ]);
         }
       });
       await Promise.allSettled(workers);
     }
 
-    async function loadEncounter(pid) {
+    async function loadEncounter(pid, signal) {
       if (STATE.encounterCache[pid]) { updateCell('.enc-cell', pid, STATE.encounterCache[pid].reason); return; }
       try {
-        const bundle = await fhirFetch(`Encounter?subject=Patient/${pid}&_sort=-date&_count=1`);
+        const bundle = await fhirFetch(`Encounter?subject=Patient/${pid}&_sort=-date&_count=1`, { signal });
         const enc = bundle.entry?.[0]?.resource;
         const reason = enc?.reasonCode?.[0]?.coding?.[0]?.display
                     || enc?.reasonCode?.[0]?.text
@@ -1424,23 +1455,25 @@
                     || 'N/A';
         STATE.encounterCache[pid] = { reason };
         updateCell('.enc-cell', pid, reason);
-      } catch {
+      } catch (err) {
+        if (err.name === 'AbortError') return;
         STATE.encounterCache[pid] = { reason: 'N/A' };
         updateCell('.enc-cell', pid, 'N/A');
       }
     }
 
-    async function loadAppointment(pid) {
+    async function loadAppointment(pid, signal) {
       if (STATE.appointmentCache[pid]) { updateCell('.appt-cell', pid, STATE.appointmentCache[pid].next); return; }
       try {
-        const bundle = await fhirFetch(`Appointment?patient=Patient/${pid}&status=proposed,booked&_sort=date&_count=1`);
+        const bundle = await fhirFetch(`Appointment?patient=Patient/${pid}&status=proposed,booked&_sort=date&_count=1`, { signal });
         const appt = bundle.entry?.[0]?.resource;
-        const next = appt?.start ? formatDateTime(appt.start) : 'No Appointment';
+        const next = appt?.start ? formatDateShort(appt.start) : 'None';
         STATE.appointmentCache[pid] = { next };
         updateCell('.appt-cell', pid, next);
-      } catch {
-        STATE.appointmentCache[pid] = { next: 'No Appointment' };
-        updateCell('.appt-cell', pid, 'No Appointment');
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+        STATE.appointmentCache[pid] = { next: 'None' };
+        updateCell('.appt-cell', pid, 'None');
       }
     }
 
@@ -1583,6 +1616,13 @@
       if (isNaN(d.getTime())) return iso;
       return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
         + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function formatDateShort(iso) {
+      if (!iso) return 'N/A';
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      return d.toLocaleDateString('en-US', { year: '2-digit', month: 'short', day: 'numeric' });
     }
 
     function escapeHtml(str) {

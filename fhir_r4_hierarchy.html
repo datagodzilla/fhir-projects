@@ -1479,6 +1479,20 @@ function clearTreeSearch() {
 // Legend click navigation: find the module node, expand path to it, center view
 function legendNav(moduleName) {
   if (!moduleName || !root) return;
+
+  // Reset tree to default collapsed state before navigating
+  function expAll(d) {
+    if (d._children) { d.children = d._children; d._children = null; }
+    if (d.children) d.children.forEach(expAll);
+  }
+  expAll(root);
+  function collapseAt(d, maxDepth) {
+    if (d.children) d.children.forEach(c => collapseAt(c, maxDepth));
+    if (d.children && d.depth >= maxDepth) { d._children = d.children; d.children = null; }
+  }
+  collapseAt(root, 3);
+  collapseSpecificNodes(root);
+
   // Find the Module-type node whose data.name matches exactly
   // Do NOT match by data.module — that would match individual resources instead of the group node
   function findModuleNode(d, target) {
